@@ -65,9 +65,9 @@ adventurer.roll();
 // robin.companion.roll();
 // robin.companion.companion.roll();
 
-// Part 3: Class Features &&  Part 4: Class Uniforms && Part 5: Gather your Party
+// Part 3: Class Features &&  Part 4: Class Uniforms && Part 5: Gather your Party && Part 6: Developing Skills
 
-console.log("\n Part 3: Class Features & Part 4: Class Uniforms\n")
+console.log("\n Part 3: Class Features & Part 4: Class Uniforms && Part 5: Gather your Party\n")
 
 class Character {
     constructor (name) {
@@ -80,23 +80,25 @@ class Character {
     roll (mod = 0) {
         const result = Math.floor(Math.random() * 20) + 1 + mod;
         console.log(`${this.name} rolled a ${result}.`)
+        return result;
         }
 
     addCompanion(companion) {
         this.companions.push(companion);
+        return;
           }
 }
 
 class Adventurer extends Character {
-    constructor(name, role, skills) {
+
+    constructor(name, role, skill) {
         super(name);
-        debugger;
         if (role !== Adventurer.ROLES.find((e) => e === role)) {
             throw new Error(`Invalid role: ${role}. Valid roles are: ${Adventurer.ROLES.join(", ")}.`)
         }
         this.role = role;
         this.friend = true;
-        this.skills = skills;
+        this.skill = skill;
         this.inventory.push("bedroll", "50 gold coins");
    
     }
@@ -109,7 +111,33 @@ class Adventurer extends Character {
         this.friend = false;
         console.log(`Beware ${this.name} is nearby...`);
         return this;
-    }    
+    }   
+
+    duel(opponent) {
+  
+        let i = 0;
+        while (this.health > 50  && opponent.health > 50 ){
+        i++;
+        console.log(`Round #${i}`);
+        let fighterRoll = this.roll();
+        let opponentRoll = opponent.roll();
+        debugger;
+        if (fighterRoll > opponentRoll) {
+            opponent.health -=10;
+            console.log(`${this.name} hits ${opponent.name}! [${fighterRoll} vs ${opponentRoll}] (${this.name}: ${this.health}, ${opponent.name}: ${opponent.health})`)
+        } 
+        else if (fighterRoll === opponentRoll) {
+            console.log(`Both miss! [${fighterRoll} vs ${opponentRoll}]`)
+            continue}
+        else {
+            this.health -=10
+            console.log(`${opponent.name} hits ${this.name}! [${fighterRoll} vs ${opponentRoll}] (${opponent.name}: ${opponent.health}, ${this.name}: ${this.health})`)}
+
+        if (this.health <= 50 || opponent.health <= 50) {
+                const winner = this.health > 50 ? this.name : opponent.name;
+                console.log(`${winner} wins the duel! (${opponent.name}: ${opponent.health}, ${this.name}: ${this.health})`);
+                break; } }
+}
 }
 
 class Companion extends Character {
@@ -124,12 +152,38 @@ class Companion extends Character {
     }
 }
 
+class AdventurerFactory {  
+    constructor (role) {
+      this.role = role;
+      this.adventurers = [];
+    }
+    generate (name) {
+      debugger;
+      const newAdventurer = new Adventurer(name, this.role);
+      this.adventurers.push(newAdventurer);
+      return;
+    }
+    findByIndex (index) {
+      return this.adventurers[index];
+    }
+    findByName (name) {
+      return this.adventurers.find((a) => a.name === name);
+    }
+  }
+
+
 Character.MAX_HEALTH = 100;
 Adventurer.ROLES = ["Fighter","Healer","Wizard", "Warrior", "Healer", "Mage", "Dwarf"]
 
-const robin = new Adventurer("Robin", "Mage");
-robin.skills = "Magic";
-console.log(robin);
+const healers = new AdventurerFactory("Mage");
+healers.generate("Robin", "wizard");
+
+const robin = healers.adventurers[0];
+
+console.log(`${robin}`);
+// const robin = new Adventurer("Robin", "Mage");
+
+robin.skill = "Magic";
 const leo = new Companion("Leo", "cat");
 const frank = new Companion("Frank", "flea");
 
@@ -138,15 +192,19 @@ frank.inventory = ["small hat", "sunglasses"];
 robin.addCompanion(leo);
 leo.addCompanion(frank);
 
-console.log(robin);
+console.log(robin.skill);
 const meetDwarf = new Adventurer("Gimly", "Dwarf", "Negotiation");
 meetDwarf.scout();
 const meetGoblin = new Adventurer("Goblin", "Fighter", "Fight");
 meetGoblin.enemy().scout();
 
-robin.health = 9;
+// robin.health = 9;
+// leo.recovery(robin);
+
+// robin.health = 50;
+// leo.recovery(robin);
+
+robin.duel(meetGoblin);
 leo.recovery(robin);
 
-robin.health = 50;
-leo.recovery(robin);
 
